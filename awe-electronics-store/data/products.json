@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "name": "Product A",
+        "description": "Description for Product A",
+        "price": 29.99,
+        "quantity": 100,
+        "category": "Electronics"
+    },
+    {
+        "id": 2,
+        "name": "Product B",
+        "description": "Description for Product B",
+        "price": 49.99,
+        "quantity": 50,
+        "category": "Electronics"
+    },
+    {
+        "id": 3,
+        "name": "Product C",
+        "description": "Description for Product C",
+        "price": 19.99,
+        "quantity": 200,
+        "category": "Accessories"
+    },
+    {
+        "id": 4,
+        "name": "Product D",
+        "description": "Description for Product D",
+        "price": 99.99,
+        "quantity": 20,
+        "category": "Home Appliances"
+    }
+]
