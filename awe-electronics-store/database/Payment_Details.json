@@ -1,0 +1,9 @@
+[
+  {
+    "payment_id": 1,
+    "order_id": 1,
+    "invoice": "invoice.txt",
+    "receipt": "receipt.txt",
+    "total_price": 50
+  }
+]

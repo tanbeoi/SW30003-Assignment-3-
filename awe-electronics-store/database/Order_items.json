@@ -1,0 +1,16 @@
+[
+  {
+    "order_item_id": 1,
+    "order_id": 1,
+    "product_id": 1,
+    "quantity": 2,
+    "price_total": 20
+  },
+  {
+    "order_item_id": 2,
+    "order_id": 1,
+    "product_id": 2,
+    "quantity": 1,
+    "price_total": 30
+  }
+]
