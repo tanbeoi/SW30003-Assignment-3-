@@ -28,6 +28,7 @@ class dataBase():
         with open(self.json_file, 'w') as file:
             json.dump(users, file, indent=4)
 
+     
 # testing
 db = dataBase(data_path)
 db.add_user_account('test_user', 'test_password', 'test_email@test_email')
