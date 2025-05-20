@@ -10,7 +10,8 @@ class Database:
             cls._instance = super(Database, cls).__new__(cls)
         return cls._instance
      
-    def __init__(self, accounts_file='database/Account.json', orders_file='database/Order.json', products_file='database/Product.json'):
+    def __init__(self, accounts_file='database/Account.json', orders_file='database/Order.json', 
+             products_file='database/Product.json', payments_file='database/Payment_Details.json'):
         #Skip initialization if already initialized
         if hasattr(self, 'initialized') and self.initialized:
             return
@@ -18,11 +19,13 @@ class Database:
         self.accounts_file = accounts_file
         self.orders_file = orders_file
         self.products_file = products_file
+        self.payments_file = payments_file
         
         #Create directories if they dont exist
         os.makedirs(os.path.dirname(accounts_file), exist_ok=True)
         os.makedirs(os.path.dirname(orders_file), exist_ok=True)
         os.makedirs(os.path.dirname(products_file), exist_ok=True)
+        os.makedirs(os.path.dirname(payments_file), exist_ok=True)
         
         self.load_data()
         self.initialized = True
@@ -31,6 +34,7 @@ class Database:
         self.accounts = self._load_json(self.accounts_file)
         self.orders = self._load_json(self.orders_file)
         self.products = self._load_json(self.products_file)
+        self.payments = self._load_json(self.payments_file)
 
     def _load_json(self, file_path):
         try:
@@ -45,6 +49,7 @@ class Database:
         self._save_json(self.accounts_file, self.accounts)
         self._save_json(self.orders_file, self.orders)
         self._save_json(self.products_file, self.products)
+        self._save_json(self.payments_file, self.payments)
 
     def _save_json(self, file_path, data):
         with open(file_path, 'w') as file:
@@ -62,6 +67,10 @@ class Database:
         self.products.append(product)
         self.save_data()
 
+    def add_payment(self, payment):
+        self.payments.append(payment)
+        self.save_data()
+
     def get_accounts(self):
         return self.accounts
 
@@ -70,6 +79,9 @@ class Database:
 
     def get_products(self):
         return self.products
+
+    def get_payments(self):
+        return self.payments
 
     def find_account(self, account_id):
         return next((account for account in self.accounts if account['id'] == account_id), None)
@@ -80,7 +92,14 @@ class Database:
     def find_product(self, product_id):
         return next((product for product in self.products if product['id'] == product_id), None)
 
-     #I added update and delete methods  
+    def find_payment(self, payment_id):
+        return next((payment for payment in self.payments if payment.get('payment_id') == payment_id), None)
+
+    def find_payment_by_order(self, order_id):
+        return next((payment for payment in self.payments if payment.get('order_id') == order_id), None)
+
+     # I added update and delete methods - Tan
+     
     def update_account(self, account_id, updated_data):
         for i, account in enumerate(self.accounts):
             if account.get('account_id') == account_id:
@@ -104,6 +123,14 @@ class Database:
                 self.save_data()
                 return True
         return False
+
+    def update_payment(self, payment_id, updated_data):
+        for i, payment in enumerate(self.payments):
+            if payment.get('payment_id') == payment_id:
+                self.payments[i].update(updated_data)
+                self.save_data()
+                return True
+        return False
     
     def delete_account(self, account_id):
         self.accounts = [a for a in self.accounts if a.get('account_id') != account_id]
@@ -115,5 +142,10 @@ class Database:
     
     def delete_product(self, product_id):
         self.products = [p for p in self.products if p.get('product_id') != product_id]
+        self.save_data()
+
+    def delete_payment(self, payment_id):
+        """Delete a payment record"""
+        self.payments = [p for p in self.payments if p.get('payment_id') != payment_id]
         self.save_data()
 

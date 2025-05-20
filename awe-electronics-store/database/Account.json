@@ -3,7 +3,22 @@
     "account_id": 1,
     "user_name": "user_1",
     "password": "password_1",
-    "email": "user_1@email.com"
-    
+    "email": "user_1@email.com",
+    "role": "customer"
+  },
+  {
+    "account_id": 2,
+    "user_name": "employee_1",
+    "password": "secure_pass",
+    "email": "employee@awe-electronics.com",
+    "role": "team_member",
+    "employee_id": "EMP001"
+  },
+  {
+    "account_id": 3,
+    "user_name": "customer_2",
+    "password": "customer_pass",
+    "email": "customer2@email.com",
+    "role": "customer"
   }
 ]
