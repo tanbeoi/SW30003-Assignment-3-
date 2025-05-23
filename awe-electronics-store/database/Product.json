@@ -1,16 +1,16 @@
 [
-  {
-    "product_id": 1,
-    "name": "Wireless Mouse",
-    "description": "Very squeeky.",
-    "price": 10,
-    "stock_quantity": 150
-  },
-  {
-    "product_id": 2,
-    "name": "Mechanical Keyboard",
-    "description": "Very clicky.",
-    "price": 30,
-    "stock_quantity": 100
-  }
+    {
+        "product_id": 1,
+        "name": "Wireless Mouse",
+        "description": "Very squeeky.",
+        "price": 10,
+        "stock_quantity": 150
+    },
+    {
+        "product_id": 2,
+        "name": "Mechanical Keyboard",
+        "description": "Very clicky.",
+        "price": 30,
+        "stock_quantity": 100
+    }
 ]
