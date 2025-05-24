@@ -1,49 +1,51 @@
-from django.shortcuts import render
-from controllers.product_controller import productDatabase
-
+from django.shortcuts import render, redirect
+from app.controllers.product_controller import productDatabase
 
 product_db = productDatabase("Product.json")
 
-def add_new_product():
-    pass
+def add_new_product_view(request):
+    if request.method == "POST":
+        # get data from submit form
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        # cannot be bothered with floats
+        price = int(request.POST.get("price"))
+        stock_quantity = int(request.POST.get("stock_quantity"))
+        # use the instance of the database to add it
+        product_db.add_product(name, description, price, stock_quantity)
+        # if successful return to product management
+        return render(request, "product_management.html")
+    #otherwise return to product management again
+    return render(request, "product_management.html")
 
-def update_product():
-    pass
+def update_product_view(request):
+    if request.method == "POST":
+        # get values from form
+        # dropdown box with item name included
+        product_id = int(request.POST.get("product_id"))
+        # drop down box
+        chosen_entry = request.POST.get("field")
+        #text_box
+        new_value = request.POST.get("value")
+        # update
+        product_db.update_product_by_id(product_id,chosen_entry, new_value)
+        return render(request, "product_management.html")
+    #otherwise return to product management again
+    return render(request, "product_management.html")
 
+def delete_product_view(request):
+    if request.method == "POST":
+        # delete functionality is covered in parent 
+        id_name= "product_id"
+        id_number = int(request.POST.get("product_id"))
 
-def get_product_list():
-    pass
+        product_db.delete_by_id(id_name, id_number)
+        return render(request, "product_management.html")
+    #otherwise return to product management again
+    return render(request, "product_management.html")
 
-def update_product():
-    pass
-# from flask import render_template, request, redirect, url_for
-# from app.controllers.product_controller import ProductController
-
-# product_controller = ProductController()
-
-# def list_products():
-#     products = product_controller.get_all_products()
-#     return render_template('products/list.html', products=products)
-
-# def view_product(product_id):
-#     product = product_controller.get_product_by_id(product_id)
-#     return render_template('products/view.html', product=product)
-
-# def add_product():
-#     if request.method == 'POST':
-#         product_data = request.form.to_dict()
-#         product_controller.add_product(product_data)
-#         return redirect(url_for('list_products'))
-#     return render_template('products/add.html')
-
-# def update_product(product_id):
-#     product = product_controller.get_product_by_id(product_id)
-#     if request.method == 'POST':
-#         updated_data = request.form.to_dict()
-#         product_controller.update_product(product_id, updated_data)
-#         return redirect(url_for('view_product', product_id=product_id))
-#     return render_template('products/update.html', product=product)
-
-# def delete_product(product_id):
-#     product_controller.delete_product(product_id)
-#     return redirect(url_for('list_products'))
+# to get list of all stock items. 
+# this will be helpful for populating form information
+def product_list_view(request):
+    stock = product_db.get_all()
+    return render(request, "product_management.html", {"products": stock})

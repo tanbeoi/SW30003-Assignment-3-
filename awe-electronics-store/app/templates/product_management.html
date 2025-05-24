@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" action="//">
+        <legend>Add New Product</legend>
+  {% csrf_token %}
+  <label>Product Name:</label>
+  <input type="text" name="name" required><br>
+
+  <label>Product Description:</label>
+  <input type="text" name="description" placeholder="description..."><br>
+    
+    <label>Product price:</label>
+  <input type="number" name="price" placeholder="$"><br>
+
+
+  <label>Product Quantity:</label>
+  <input type="number" name="stock_quantity" required><br>
+
+  <button type="submit">Add Product</button>
+</form>
+
+    <form method="POST" action="//">
+        <legend>Update Product</legend>
+  {% csrf_token %}
+  <label> :</label>
+  <input type="number" name="product_id" required><br>
+
+  <label>:</label>
+  <input type="text" name="field" placeholder="e.g., description"><br>
+
+  <label>:</label>
+  <input type="text" name="value" required><br>
+
+  <button type="submit">Update Product</button>
+</form>
+
+    <form method="POST" action="//">
+        <legend>Delete Product</legend>
+  {% csrf_token %}
+  <label> :</label>
+  <input type="number" name="product_id" required><br>
+
+  <label>:</label>
+  <input type="text" name="field" placeholder="e.g., description"><br>
+
+  <label>:</label>
+  <input type="text" name="value" required><br>
+
+  <button type="submit">Update Product</button>
+</form>
+
+
+</body>
+</html>
