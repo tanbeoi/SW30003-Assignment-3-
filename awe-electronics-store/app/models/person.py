@@ -1,3 +1,6 @@
+from app.models.database import Database
+db = Database()
+
 class Person:
     def __init__(self, name, email):
         self.name = name
@@ -9,67 +12,49 @@ class Person:
         Returns a list of products
         """
         # Get list of products from database 
-        from app.models.database import Database
-        db = Database()
         return db.get_products()
 
 class Customer(Person):
-    def __init__(self, name, email, customer_id=None):
+    def __init__(self, name, email):
         super().__init__(name, email)
-        self.customer_id = customer_id
+        self.account_id = None  # Initialize as None until create_account is called
         self.shopping_cart = []
 
-    def place_order(self, shipping_address=None):
+    def create_account(self, username, password, is_team_member=False):
         """
-        Create and place an order with the products in the shopping cart
-        Requires an active account (customer_id)
+        Create a new account for this customer or team member
         """
-        # Check if customer has an account
-        if not self.customer_id:
-            raise PermissionError("You must create an account before placing an order")
-            
-        if not self.shopping_cart:
-            raise ValueError("Shopping cart is empty")
-            
-        from app.models.order import Order
-        from app.models.database import Database
         
-        db = Database()
+        # Generate unique account ID
+        account_id = len(db.get_accounts()) + 1
         
-        # Generate unique order ID by counting the number of existing orders then add 1 
-        order_id = len(db.get_orders()) + 1
-        payment_id = len(db.get_payments()) + 1
-        
-        # Create new order
-        order = {
-            "order_id": order_id,
-            "account_id": self.customer_id,
-            "products": self.shopping_cart,
-            "status": "Pending",
-            "shipping_address": shipping_address,
-            "payment_id": payment_id
+        # Create new account
+        account = {
+            "account_id": account_id,
+            "user_name": username,
+            "password": password,  # In production, this should be hashed
+            "email": self.email,
+            "role": "team_member" if is_team_member else "customer",
         }
         
         # Add to database
-        db.add_order(order)
+        db.add_account(account)
+        self.account_id = account_id
         
-        # Clear shopping cart
-        self.shopping_cart = []
-        
-        return order_id
+        return account_id
+
+    def _check_authenticated(self):
+        """Helper method to check if customer is authenticated"""
+        if not self.account_id:
+            raise PermissionError("You must create an account before performing this action")
 
     def add_to_cart(self, product_id, quantity=1):
         """
         Add a product to the shopping cart
-        Requires an active account (customer_id)
-        """
-        # Check if customer has an account
-        if not self.customer_id:
-            raise PermissionError("You must create an account before adding items to cart")
-            
-        from app.models.database import Database
-        
-        db = Database()
+        Requires an active account (account_id)
+        """ 
+        self._check_authenticated()
+
         product = next((p for p in db.get_products() if p.get('product_id') == product_id), None)
         
         if not product:
@@ -89,45 +74,52 @@ class Customer(Person):
         self.shopping_cart.append(cart_item)
         return self.shopping_cart
 
-    def create_account(self, username, password, is_team_member=False):
+    def place_order(self, shipping_address=None):
         """
-        Create a new account for this customer or team member
+        Create and place an order with the products in the shopping cart
+        Requires an active account (account_id)
         """
-        from app.models.database import Database
+        self._check_authenticated()
         
-        db = Database()
+        # Check if customer has an account
+        if not self.account_id:
+            raise PermissionError("You must create an account before placing an order")
+            
+        if not self.shopping_cart:
+            raise ValueError("Shopping cart is empty")
+            
+        from app.models.order import Order
+        from datetime import datetime
         
-        # Generate unique account ID
-        account_id = len(db.get_accounts()) + 1
+        # Generate unique order ID by counting the number of existing orders then add 1 
+        order_id = len(db.get_orders()) + 1
+        payment_id = len(db.get_payments()) + 1
         
-        # Create new account
-        account = {
-            "account_id": account_id,
-            "user_name": username,
-            "password": password,  # In production, this should be hashed
-            "email": self.email,
-            "role": "team_member" if is_team_member else "customer",
-        }
-        
-        # Add employee_id for team members
-        if is_team_member and hasattr(self, 'employee_id'):
-            account["employee_id"] = self.employee_id
+        # Create new order
+        order = {
+          "order_id": order_id,
+          "account_id": self.account_id,
+          "products": self.shopping_cart,
+          "status": "Pending",
+          "shipping_address": shipping_address,
+          "date": datetime.now().isoformat(),
+          "payment_id": payment_id
+          }
         
         # Add to database
-        db.add_account(account)
+        db.add_order(order)
         
-        # Update customer with account ID
-        self.customer_id = account_id
+        # Clear shopping cart
+        self.shopping_cart = []
         
-        return account_id
+        return order_id
 
     def view_order_status(self, order_id):
         """
         View the status of a specific order
+        Requires an active account (account_id)
         """
-        from app.models.database import Database
-        
-        db = Database()
+        self._check_authenticated()
         
         # Find order
         order = next((o for o in db.get_orders() if o.get('order_id') == order_id), None)
@@ -136,7 +128,7 @@ class Customer(Person):
             raise ValueError(f"Order with ID {order_id} not found")
             
         # Check if customer is authorized to view this order
-        if order.get('account_id') != self.customer_id:
+        if order.get('account_id') != self.account_id:
             raise PermissionError("Not authorized to view this order")
             
         return {
@@ -146,34 +138,38 @@ class Customer(Person):
         }
 
 class TeamMember(Customer):
-    def __init__(self, name, email, employee_id):
+    def __init__(self, name, email):
         super().__init__(name, email)
-        self.employee_id = employee_id
 
-
-    def view_customer_orders(self, customer_id=None):
+    def create_team_member_account(self, username, password):
+        """Create a team member account with appropriate role"""
+        return self.create_account(username, password, is_team_member=True)
+        
+    def _check_authenticated(self):
+         return super()._check_authenticated()    
+        
+    def view_customer_orders(self, account_id=None):
         """
         View all orders or orders for a specific customer
+        Require an active account (account_id)
         """
-        from app.models.database import Database
+        self._check_authenticated()
         
-        db = Database()
         orders = db.get_orders()
         
         # Return all orders of a customer or else return all orders 
-        if customer_id:
-            orders = [o for o in orders if o.get('account_id') == customer_id]
+        if account_id:
+            orders = [o for o in orders if o.get('account_id') == account_id]
             
         return orders
 
     def update_order_status(self, order_id, new_status):
         """
         Update the status of an order
+        Require an active account (account_id)
         """
-        from app.models.database import Database
-        
-        db = Database()
-        
+        self._check_authenticated()
+
         # Update order status
         update_data = {"status": new_status}
         result = db.update_order(order_id, update_data)
@@ -183,23 +179,18 @@ class TeamMember(Customer):
             
         return True
 
-    def adjust_stock(self, product_id, quantity_change):
+    def adjust_stock(self, product_id, new_quantity):
         """
         Adjust the stock level of a product
+        Require an active account (account_id)
         """
-        from app.models.database import Database
-        
-        db = Database()
-        
+        self._check_authenticated()
+  
         # Find product
         product = next((p for p in db.get_products() if p.get('product_id') == product_id), None)
         
         if not product:
             raise ValueError(f"Product with ID {product_id} not found")
-            
-        # Calculate new quantity
-        current_quantity = product.get('stock_quantity', 0)
-        new_quantity = current_quantity + quantity_change
         
         if new_quantity < 0:
             raise ValueError("Stock quantity cannot be negative")
@@ -215,12 +206,11 @@ class TeamMember(Customer):
 
     def view_sales_data(self, start_date=None, end_date=None):
         """
-        View sales data, optionally filtered by date range
+        View sales data, optionally filtered by date range (I havent implemented the date range yet)
+        Require an active account (account_id)
         """
-        from app.models.database import Database
-        
-        db = Database()
-        
+        self._check_authenticated()
+
         # Get all completed orders
         orders = [o for o in db.get_orders() if o.get('status') == 'Completed']
         

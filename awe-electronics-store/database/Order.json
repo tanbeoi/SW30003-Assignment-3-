@@ -1,41 +1,19 @@
 [
-  {
-    "order_id": 1,
-    "account_id": 1,
-    "payment_id": 101,
-    "products": [
-      {
-        "product_id": 1,
-        "name": "Wireless Mouse",
-        "price": 10,
-        "quantity": 2,
-        "total": 20
-      },
-      {
-        "product_id": 2,
-        "name": "Mechanical Keyboard",
-        "price": 30,
-        "quantity": 1,
-        "total": 30
-      }
-    ],
-    "status": "Completed",
-    "shipping_address": "123 Main St, Melbourne VIC 3000"
-  },
-  {
-    "order_id": 2,
-    "account_id": 2,
-    "payment_id": 102,
-    "products": [
-      {
-        "product_id": 2,
-        "name": "Mechanical Keyboard",
-        "price": 30,
-        "quantity": 1,
-        "total": 30
-      }
-    ],
-    "status": "Pending",
-    "shipping_address": "456 High St, Sydney NSW 2000"
-  }
+    {
+        "order_id": 1,
+        "account_id": 2,
+        "products": [
+            {
+                "product_id": 1,
+                "name": "Viper V3 Pro",
+                "price": 10.0,
+                "quantity": 3,
+                "total": 30.0
+            }
+        ],
+        "status": "Completed",
+        "shipping_address": "Swinburne University, John St, Hawthorn, VIC 3122",
+        "date": "2025-05-27T23:46:19.522028",
+        "payment_id": 1
+    }
 ]

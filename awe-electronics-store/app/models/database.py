@@ -1,8 +1,9 @@
 import json
 import os
+from pathlib import Path
 
 class Database:
-     #Singleton pattern implementation: ensure only one instance of Database exists
+    # Singleton pattern implementation: ensure only one instance of Database exists
     _instance = None
      
     def __new__(cls, *args, **kwargs):
@@ -10,22 +11,27 @@ class Database:
             cls._instance = super(Database, cls).__new__(cls)
         return cls._instance
      
-    def __init__(self, accounts_file='database/Account.json', orders_file='database/Order.json', 
-             products_file='database/Product.json', payments_file='database/Payment_Details.json'):
-        #Skip initialization if already initialized
+    def __init__(self, accounts_file=None, orders_file=None, 
+             products_file=None, payments_file=None):
+        # Skip initialization if already initialized
         if hasattr(self, 'initialized') and self.initialized:
             return
         
-        self.accounts_file = accounts_file
-        self.orders_file = orders_file
-        self.products_file = products_file
-        self.payments_file = payments_file
+        # Get project root directory (parent of app directory)
+        project_dir = Path(__file__).parent.parent.parent
+        db_dir = os.path.join(project_dir, 'database')
         
-        #Create directories if they dont exist
-        os.makedirs(os.path.dirname(accounts_file), exist_ok=True)
-        os.makedirs(os.path.dirname(orders_file), exist_ok=True)
-        os.makedirs(os.path.dirname(products_file), exist_ok=True)
-        os.makedirs(os.path.dirname(payments_file), exist_ok=True)
+        # Use absolute paths by default
+        self.accounts_file = accounts_file or os.path.join(db_dir, 'Account.json')
+        self.orders_file = orders_file or os.path.join(db_dir, 'Order.json')
+        self.products_file = products_file or os.path.join(db_dir, 'Product.json')
+        self.payments_file = payments_file or os.path.join(db_dir, 'Payment.json')
+        
+        # Create directories if they don't exist
+        os.makedirs(os.path.dirname(self.accounts_file), exist_ok=True)
+        os.makedirs(os.path.dirname(self.orders_file), exist_ok=True)
+        os.makedirs(os.path.dirname(self.products_file), exist_ok=True)
+        os.makedirs(os.path.dirname(self.payments_file), exist_ok=True)
         
         self.load_data()
         self.initialized = True
